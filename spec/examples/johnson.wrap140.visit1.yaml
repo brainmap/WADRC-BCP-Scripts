@@ -1,0 +1,11 @@
+# DTI Processing Configuration File
+# johnson.wrap140.visit1
+# UWMR5, 25 Directions
+# Last Edited: 3/24/2010, ekk
+--- 
+:file_glob: "'I*.dcm"
+:volumes: 26
+:slices_per_volume: 49
+:slice_order: altplus
+:bvectors_file: /Data/vtrak1/preprocessed/visits/wrap140.visit1/DTI_info/preproc_dti/25_directions_table.txt
+:bvalues_file: /Data/vtrak1/preprocessed/visits/wrap140.visit1/DTI_info/preproc_dti/bvalues

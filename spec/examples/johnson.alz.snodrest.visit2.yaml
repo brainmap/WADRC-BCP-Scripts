@@ -1,0 +1,11 @@
+# DTI Processing Configuration File
+# johnson.alz.snodrest.visit2
+# Andy's 3T, 12 Directions
+# Last Edited: 3/24/2010, ekk
+--- 
+:file_glob: "'S*'"
+:volumes: 13
+:slices_per_volume: 39
+:slice_order: altplus
+:bvectors_file: /Data/vtrak1/preprocessed/visits/johnson.alz.snodrest.visit2/DTI_info/preproc_dti/enc12.txt
+:bvalues_file: /Data/vtrak1/preprocessed/visits/johnson.alz.snodrest.visit2/DTI_info/preproc_dti/bvalues

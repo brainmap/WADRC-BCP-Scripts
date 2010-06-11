@@ -1,0 +1,19 @@
+# DTI Processing File
+--- 
+:file_glob: "'*.dcm'"
+:volumes: 26
+:slices_per_volume: 48
+:slice_order: altplus
+:bvectors_file: /Data/vtrak1/analyses/barb/cathy_temp/25_directions_bvectors.txt
+:bvalues_file: /Data/vtrak1/analyses/barb/cathy_temp/25_directions_bvalues.txt
+:force_overwrite: true
+:dry_run: false
+:repetition_time: 10000
+
+# Defaults:
+# :file_glob: "'*.0*'"
+# :volumes: 26
+# :slices_per_volume: 49
+# :slice_order: altplus
+# :bvectors_file: /Data/vtrak1/preprocessed/progs/wrap140.visit1/DTI_Fitting/25_directions_UWhospital_magnet_horizontal_spaces.csv
+# :bvalues_file: /Data/vtrak1/preprocessed/progs/wrap140.visit1/DTI_Fitting/25_directions_bvalues.txt

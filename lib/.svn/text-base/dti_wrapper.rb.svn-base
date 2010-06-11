@@ -1,0 +1,33 @@
+#!/bin/env ruby
+## This is a temporary wrapper to execute DTI data.
+
+require 'dtifit_processing'
+
+=begin rdoc
+This library provides basic processing for Diffusion Tensor Images (DTI)
+This command-line processing script takes raw DTI dicoms and outputs FA, MD &
+associated diffusion maps (eigenvalues & eigenvectors).
+
+Currently, the script assumes raw data are unzipped and the output directory
+exists, the glob and DTI params are constant across DTI series.
+=end
+
+
+#def run!
+#  input_directory = '/Data/vtrak1/raw/wrap140/wrp002_5938_03072008/017'
+#  output_directory = '/Data/vtrak1/preprocessed/visits/wrap140.visit1/wrp002/dti'
+#  subject_prefix = 'wrp002'
+#
+#  ReconstructDTI.reconstruct!(input_directory, output_directory, subject_prefix)
+#end
+#
+#run!
+
+
+if __FILE__ == $0
+  if ARGV.size != 3
+    puts "Usage: dtifit_processing.rb input_directory output_directory subject_prefix"
+  else
+    ReconstructDTI.reconstruct!(ARGV[0], ARGV[1], ARGV[2])
+  end
+end

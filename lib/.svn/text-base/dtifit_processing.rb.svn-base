@@ -1,0 +1,95 @@
+#!/bin/env ruby
+
+=begin rdoc
+This library provides basic processing for Diffusion Tensor Images (DTI).
+
+The main function reconstruct! takes 3 arguements: A directory of raw DTI dicoms,
+an output directory and a filename prefix.  A set of batch commands using standard
+imaging tools (AFNI & FSL) are generated and executed to create Fractional 
+Anisotropy (FA), Mean Diffusivity (MD) and associated diffusion maps
+(eigenvalues & eigenvectors) in the output directory.
+
+The script depends on AFNI to be in the path for reconstruction (to3d) and
+FSL to be in the path for DTI Data Fitting (eddy_correct, bet & dtifit)
+
+=end
+
+require 'fileutils'
+
+class ReconstructDTI
+
+	BVECTORS_FILE = '/Data/vtrak1/preprocessed/progs/wrap140.visit1/DTI_Fitting/25_directions_UWhospital_magnet_horizontal_spaces.csv' # Vector directions of the gradient for each of the 25 directtions in this 25-direction DTI sequence.  A 3x26 matrix.
+	BVALUES_FILE = '/Data/vtrak1/preprocessed/progs/wrap140.visit1/DTI_Fitting/25_directions_bvalues.txt' # Magnitude of the direction vectors. A 1x26 matrix of 0 for the first (B0) and then 1000 for each direction afterwards.
+
+	FILE_GLOB = "'I*.dcm'"
+	VOLUMES = 26
+	SLICES_PER_VOLUME = 49
+	SLICE_ORDER = 'altplus'
+
+  # Checks for some required helper applications that must be installed on the
+  # system prior to use.  It returns false if there are no missing
+  # processing program binaries and returns the names of the missing programs.
+  def self.missing_required_binaries?
+    missing_binaries = []
+    ['to3d', 'eddy_correct', 'bet', 'dtifit'].each do |required_binary|
+      if system("which #{required_binary} > /dev/null") == false
+        missing_binaries << required_binary
+      end
+    end
+
+    if missing_binaries.size == 0
+      return false
+    else
+      return missing_binaries
+    end
+
+  end
+
+  # Constructs the commands used in the script from constants and variables
+  # passed in from the command line.
+  def self.construct_commands
+    to3d_recon_options = "-time:zt #{SLICES_PER_VOLUME} #{VOLUMES} 1 #{SLICE_ORDER} #{@@input_directory}/#{FILE_GLOB}"
+
+    recon_cmd = "to3d -prefix #{@@file_prefix}.nii -session #{@@output_directory} #{to3d_recon_options}"
+    eddy_cmd = "eddy_correct #{@@output_directory}/#{@@file_prefix}.nii #{@@output_directory}/#{@@file_prefix}_ecc.nii 0"
+    mask_cmd = "bet #{@@output_directory}/#{@@file_prefix}_ecc  #{@@output_directory}/#{@@file_prefix}_ecc_brain -f 0.1 -g 0 -n -m"
+    dtifit_cmd = "dtifit --data=#{@@output_directory}/#{@@file_prefix}_ecc.nii --out=#{@@output_directory}/#{@@file_prefix}_dti --mask=#{@@output_directory}/#{@@file_prefix}_ecc_brain_mask --bvecs=#{BVECTORS_FILE} --bvals=#{BVALUES_FILE}"
+
+    @@batch_cmd = [recon_cmd, eddy_cmd, mask_cmd, dtifit_cmd].join("; ")
+  end
+
+  # Sets variables passed in from the command-line, constructs the processing
+  # commands and then executes them.
+  #
+  # Throws an IOError if input_directory is not found on the filesystem or
+  # output directory already exists.
+  def self.reconstruct!(input_directory, output_directory, file_prefix)
+    @@input_directory = File.expand_path(input_directory)
+    @@output_directory = File.expand_path(output_directory)
+    @@file_prefix = file_prefix
+
+    if missing_required_binaries?
+      puts "You are missing some required processing programs:"
+      missing_required_binaries?.each { |requirement| puts requirement }
+      puts "Please install the missing programs or run this script from a properly configured workstation."
+      raise(Error)
+    end
+
+    raise(IOError, "#{@@input_directory}: not found.") if not File.directory?(@@input_directory)
+    raise(IOError, "#{@@output_directory} already exists.") if File.directory?(@@output_directory)
+    FileUtils.mkdir_p(@@output_directory)
+
+
+    construct_commands
+
+    puts @@batch_cmd
+    system @@batch_cmd
+  end
+
+end
+
+# Code for when excuting from the command line.
+if __FILE__ == $0
+  puts "Libraries for DTI processing.  To use this with the command-line, use dti_wrapper.rb"
+end
+
