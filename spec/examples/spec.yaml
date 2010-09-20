@@ -17,3 +17,6 @@
 # :slice_order: altplus
 # :bvectors_file: /Data/vtrak1/preprocessed/progs/wrap140.visit1/DTI_Fitting/25_directions_UWhospital_magnet_horizontal_spaces.csv
 # :bvalues_file: /Data/vtrak1/preprocessed/progs/wrap140.visit1/DTI_Fitting/25_directions_bvalues.txt
+# 
+# Optional: 
+# :repetition_time:

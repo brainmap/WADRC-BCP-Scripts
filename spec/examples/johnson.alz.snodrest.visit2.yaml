@@ -9,3 +9,6 @@
 :slice_order: altplus
 :bvectors_file: /Data/vtrak1/preprocessed/visits/johnson.alz.snodrest.visit2/DTI_info/preproc_dti/enc12.txt
 :bvalues_file: /Data/vtrak1/preprocessed/visits/johnson.alz.snodrest.visit2/DTI_info/preproc_dti/bvalues
+
+# Optional Defaults
+# :repetition_time: 8000

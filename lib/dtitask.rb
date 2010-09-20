@@ -15,8 +15,13 @@ FSL to be in the path for DTI Data Fitting (eddy_correct, bet & dtifit)
 
 =end
 
-require 'fileutils'
-require 'escoffier'
+begin
+  require 'fileutils'
+  require 'escoffier'
+rescue LoadError => e
+  require 'rubygems'
+  retry
+end
 
 class Dtitask
   
@@ -127,7 +132,7 @@ class Dtitask
     
     # Rotate_bvecs
     rotated_bvectors_file = File.join(output_directory, file_prefix + "_" + File.basename(@config[:bvectors_file]))
-    commands << "rotbvecs #{@config[:bvectors_file]} #{rotated_bvectors_file} #{File.join(output_directory, file_prefix)}_ecc.ecclog -k"
+    commands << "rotbvecs #{@config[:bvectors_file]} #{rotated_bvectors_file} #{File.join(output_directory, file_prefix)}_ecc.ecclog"
     
     # Apply Mask
     if @config[:mask]
@@ -212,7 +217,9 @@ class Dtitask
       # Check Working Input Directory
       if @config[:force_sandbox]
         path = Pathname.new(input_directory)
-        @working_input_directory = path.sandbox(input_directory)
+        # @working_input_directory = path.sandbox(input_directory)
+        @working_input_directory = path.prep_mise(input_directory + '/', Dir.mktmpdir + '/')
+        @working_input_directory = File.join(@working_input_directory, File.basename(input_directory))
       else
         @working_input_directory = input_directory
       end
@@ -233,12 +240,12 @@ class Dtitask
     end
     
     # Setup Logging
-    # logfile = File.join(output_directory, "#{File.basename(input_directory)}.log")
-    # if File.writable?(output_directory) && @config[:dry_run] == false
-    #   $LOG = Logger.new(logfile)
-    # else
-    #   $LOG = Logger.new(STDOUT)
-    # end
+    logfile = File.join(output_directory, "#{File.basename(input_directory)}.log")
+    if File.writable?(output_directory) && @config[:dry_run] == false
+      $LOG = Logger.new(logfile)
+    else
+      $LOG = Logger.new(STDOUT)
+    end
     
     # Switch CWD (default output location for rotbvecs script)
     @cwd = Dir.pwd
