@@ -3,7 +3,7 @@
 # UWMR5, 25 Directions
 # Last Edited: 3/24/2010, ekk
 --- 
-:file_glob: "'I*.dcm"
+:file_glob: "'I*.dcm'"
 :volumes: 26
 :slices_per_volume: 49
 :slice_order: altplus

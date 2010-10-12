@@ -4,7 +4,12 @@
 $:.unshift File.join(File.dirname(__FILE__),'..','lib')
 require 'yaml'
 require 'optparse'
-require 'dtitask'
+begin
+  require 'dtitask'
+rescue LoadError
+  require 'rubygems'
+  require 'dtitask'
+end
 
 =begin rdoc
 This library provides basic processing for Diffusion Tensor Images (DTI)
