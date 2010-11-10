@@ -24,4 +24,4 @@ yaml_config=$4
 # given to the preprocess_dti.rb; other shell scripts (like run_dti_fit_script)
 # would intercept and mess up the arguments.
 
-We don't need 2 of these shell scripts now.'
+# We don't need 2 of these shell scripts now.'

@@ -39,17 +39,15 @@ end
 
 def load_spec(spec_file)
   if File.exist?(spec_file)
-    spec = YAML::load_file(spec_file)
+    YAML::load_file(spec_file)
   else
     raise IOError, "Cannot find yaml spec file #{spec_file}"
   end
-  
-  return spec
 end
 
 
 def parse_options
-  options = Hash.new
+  options = {:rotate => true}
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: #{File.basename(__FILE__)} [options] input_directory output_directory"
 
@@ -84,6 +82,10 @@ def parse_options
         
     opts.on('--vectors VECTORS_FILE', "Specify a b-vectors file.") do |bvectors_file|
       options[:bvectors_file] = bvectors_file
+    end
+    
+    opts.on('--no-rotate', "Don't rotate vectors prior to processing") do
+      options[:rotate] = false
     end
     
 

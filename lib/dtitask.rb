@@ -25,7 +25,7 @@ end
 
 class Dtitask
   
-  # Task Configuration Options
+  # Task Configuration Options Hash
   attr_accessor :config
   # Source Directory of DICOMS
   attr_reader :input_directory
@@ -91,9 +91,9 @@ class Dtitask
     
     introduction = "Begin processing #{File.join(@input_directory)}"; puts
     puts "-" * introduction.size
-    puts introduction
+    puts introduction; puts
     
-    begin check_setup
+    begin check_setup unless @config[:dry_run]
     rescue IOError => e
       puts "Error: #{e}"
       exit
@@ -103,7 +103,7 @@ class Dtitask
     batch_cmd = construct_commands(@working_input_directory, @output_directory, @file_prefix)
 
     batch_cmd.each do |cmd|
-      puts cmd; #$LOG.info cmd
+      puts cmd; $LOG.info cmd
       puts `#{cmd}` unless @config[:dry_run]
       puts
     end
@@ -130,9 +130,14 @@ class Dtitask
     # Eddy Current Correction
     commands << "eddy_correct #{output_directory}/#{file_prefix}.nii #{output_directory}/#{file_prefix}_ecc.nii 0"
     
-    # Rotate_bvecs
-    rotated_bvectors_file = File.join(output_directory, file_prefix + "_" + File.basename(@config[:bvectors_file]))
-    commands << "rotbvecs #{@config[:bvectors_file]} #{rotated_bvectors_file} #{File.join(output_directory, file_prefix)}_ecc.ecclog"
+    if @config[:rotate]
+      # Rotate_bvecs
+      subject_bvectors_file = File.join(output_directory, file_prefix + "_" + File.basename(@config[:bvectors_file]))
+      commands << "rotbvecs #{@config[:bvectors_file]} #{subject_bvectors_file} #{File.join(output_directory, file_prefix)}_ecc.ecclog"
+    else
+      subject_bvectors_file = @config[:bvectors_file]
+    end
+    
     
     # Apply Mask
     if @config[:mask]
@@ -147,7 +152,7 @@ class Dtitask
     commands << "dtifit --data=#{output_directory}/#{file_prefix}_ecc.nii \
       --out=#{output_directory}/#{file_prefix}_dti \
       --mask=#{out}_brain_mask \
-      --bvecs=#{rotated_bvectors_file} \
+      --bvecs=#{subject_bvectors_file} \
       --bvals=#{@config[:bvalues_file]}"
 
     return commands
@@ -240,8 +245,8 @@ class Dtitask
     end
     
     # Setup Logging
-    logfile = File.join(output_directory, "#{File.basename(input_directory)}.log")
-    if File.writable?(output_directory) && @config[:dry_run] == false
+    logfile = File.join(output_directory, "#{File.basename(input_directory)}_#{today}.log")
+    if File.writable?(output_directory) && ! @config[:dry_run]
       $LOG = Logger.new(logfile)
     else
       $LOG = Logger.new(STDOUT)
@@ -273,6 +278,10 @@ class Dtitask
     if File.directory?(@working_input_directory) && (@input_directory != @working_input_directory)
       FileUtils.rm_r @working_input_directory 
     end
+  end
+  
+  def today
+    [Date.today.month, Date.today.day, Date.today.year].join
   end
 end
 

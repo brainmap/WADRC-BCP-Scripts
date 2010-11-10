@@ -7,5 +7,6 @@
 :volumes: 26
 :slices_per_volume: 49
 :slice_order: altplus
-:bvectors_file: /Data/vtrak1/preprocessed/visits/wrap140.visit1/DTI_info/preproc_dti/25_directions_table.txt
-:bvalues_file: /Data/vtrak1/preprocessed/visits/wrap140.visit1/DTI_info/preproc_dti/bvalues
+:bvectors_file: /Data/vtrak1/preprocessed/progs/wrap140.visit1/DTI_Fitting/25_directions_UWhospital_magnet_horizontal_spaces.txt
+:bvalues_file: /Data/vtrak1/preprocessed/progs/wrap140.visit1/DTI_Fitting/25_directions_bvalues.txt
+:repetition_time: 12000
