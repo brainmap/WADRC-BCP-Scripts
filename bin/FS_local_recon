@@ -1,9 +1,16 @@
 #!/usr/bin/env ruby
 # Usage: FS_local_recon <computer> -s <subject> <autorecon_options>
 
-require 'net/ssh'
+require 'optparse'
+begin
+  require 'net/ssh'
+rescue LoadError
+  require 'rubygems'
+  require 'net/ssh'
+end
 
-def run!(hostname, subject, options = {:server_analysis_dir => {}, :autorecon_options => ''})
+
+def run!(hostname, subject, options = {})
 	local_dir ||= '/Data/FS_local_recon'
 	server_analysis_dir = options[:server_analysis_dir]
 	dataset_path = File.join(server_analysis_dir, subject)
@@ -13,9 +20,9 @@ def run!(hostname, subject, options = {:server_analysis_dir => {}, :autorecon_op
     commands << "export FREESURFER_HOME=/Applications/freesurfer"
     commands << "source $FREESURFER_HOME/SetUpFreeSurfer.sh"
     commands << "cp -r #{dataset_path} #{local_dir}"
-  	commands << "export SUBJECTS_DIR='/Data/FS_local_recon/'"
+  	commands << "export SUBJECTS_DIR=#{local_dir}"
     commands << "echo 'SUBJECTS_DIR': $SUBJECTS_DIR"
-  	commands << "recon-all -s #{subject} #{options[:autorecon_options]}"
+  	commands << "recon-all -s #{subject} #{options[:autorecon_args].join(" ")}"
     commands << "mv #{File.join(local_dir, subject)} #{server_analysis_dir}"
     commands.join(";\n")
   end
@@ -29,6 +36,37 @@ def run_commands_on(hostname, &block)
   end
 end
 
+def parse_options
+  options = {:server_analysis_dir => '/Data/vtrak1/analyses/Freesurfer', :autorecon_args => '-autorecon2-wm -autorecon3'}
+  parser = OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename(__FILE__)} hostname [options] [autrecon_args]"
+
+    opts.on('-s', '--subject SUBJECT', "Subject to Recon")     do |subject| 
+      options[:subject] = subject
+    end
+    
+    opts.on('-d', '--dir DIR', "Directory if other than default (#{options[:server_analysis_dir]})")     do |server_analysis_dir| 
+      options[:server_analysis_dir] = File.expand_path(server_analysis_dir)
+    end
+    
+    opts.on_tail('-h', '--help', "Show this message")  { puts(parser); exit }
+    opts.on_tail("Example: #{File.basename(__FILE__)} nelson -s tami99999 autorecon2-wm autorecon3")
+  end
+  
+  if ARGV.size == 0
+    # puts "Problem with arguments: #{ARGV}"
+    puts(parser); exit
+  end
+  
+  parser.parse!(ARGV)
+  
+  options[:autorecon_args] = ARGV
+  
+  return options
+end
+
 if __FILE__ == $0
-  run!
+  hostname = ARGV.shift
+  options = parse_options
+  run!(hostname, options[:subject], options)
 end
