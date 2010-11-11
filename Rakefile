@@ -1,7 +1,3 @@
-# 
-# To change this template, choose Tools | Templates
-# and open the template in the editor.
- 
 
 require 'rubygems'
 require 'rake'
@@ -10,36 +6,20 @@ require 'rake/gempackagetask'
 require 'rake/rdoctask'
 require 'rake/testtask'
 
-spec = Gem::Specification.new do |s|
-  s.name = 'ImageProcessing'
-  s.version = '0.0.1'
-  s.has_rdoc = true
-  s.extra_rdoc_files = ['README', 'LICENSE']
-  s.summary = 'Your summary here'
-  s.description = s.summary
-  s.author = ''
-  s.email = ''
-  # s.executables = ['your_executable_here']
-  s.files = %w(LICENSE README Rakefile) + Dir.glob("{bin,lib,spec}/**/*")
-  s.require_path = "lib"
-  s.bindir = "bin"
-end
-
-Rake::GemPackageTask.new(spec) do |p|
-  p.gem_spec = spec
-  p.need_tar = true
-  p.need_zip = true
-end
-
-Rake::RDocTask.new do |rdoc|
-  files =['README', 'LICENSE', 'lib/**/*.rb']
-  rdoc.rdoc_files.add(files)
-  rdoc.main = "README" # page to start on
-  rdoc.title = "ImageProcessing Docs"
-  rdoc.rdoc_dir = 'doc/rdoc' # rdoc output folder
-  rdoc.options << '--line-numbers'
-end
-
-Rake::TestTask.new do |t|
-  t.test_files = FileList['test/**/*.rb']
+begin
+  require 'jeweler'
+  Jeweler::Tasks.new do |gem|
+    gem.name = "wadrc-bcp-scripts"
+    gem.summary = %Q{Basic Common Preprocessing Scripts for Neuroimaging Data}
+    gem.description = %Q{Basic Common Preprocessing Scripts for Neuroimaging Data}
+    gem.email = "ekk@gmail.com"
+    gem.homepage = "http://github.com/brainmap/wadrc-bcp-scripts"
+    gem.authors = "Erik Kastman"
+    gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
+    gem.add_dependency "net-ssh"
+    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+  end
+  Jeweler::GemcutterTasks.new
+rescue LoadError
+  puts "Jeweler (or a dependency) not available. Install it with: gem install jeweler"
 end
