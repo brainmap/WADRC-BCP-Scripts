@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 # Usage: FS_local_recon <computer> -s <subject> <autorecon_options>
+$:.unshift File.join(File.dirname(__FILE__),'..','lib')
 
 require 'optparse'
+require 'etc'
 begin
   require 'net/ssh'
 rescue LoadError
@@ -9,48 +11,55 @@ rescue LoadError
   require 'net/ssh'
 end
 
+require 'additions/NetSshConnectionSession'
+
 
 def run!(hostname, subject, options = {})
 	local_dir ||= '/Data/FS_local_recon'
 	server_analysis_dir = options[:server_analysis_dir]
 	dataset_path = File.join(server_analysis_dir, subject)
 
-  run_commands_on hostname do
+  ssh_to_host hostname do |ssh|
     commands = []
-    commands << "export FREESURFER_HOME=/Applications/freesurfer"
-    commands << "source $FREESURFER_HOME/SetUpFreeSurfer.sh"
-    commands << "cp -r #{dataset_path} #{local_dir}"
-  	commands << "export SUBJECTS_DIR=#{local_dir}"
-    commands << "echo 'SUBJECTS_DIR': $SUBJECTS_DIR"
-  	commands << "recon-all -s #{subject} #{options[:autorecon_args].join(" ")}"
+    commands << "cp -r #{dataset_path} #{local_dir}; chmod -R ug+w #{local_dir}"
+    commands << [
+      "export FREESURFER_HOME=/Applications/freesurfer",
+      "source $FREESURFER_HOME/SetUpFreeSurfer.sh",
+  	  "export SUBJECTS_DIR=#{local_dir}",
+  	  "recon-all -s #{subject} #{options[:autorecon_args].join(" ")}"].join(";\n")
     commands << "mv #{File.join(local_dir, subject)} #{server_analysis_dir}"
-    commands.join(";\n")
+    
+    commands.each { |cmd| puts cmd; ssh.exec_realtime(cmd) }
   end
 
 end
 
-def run_commands_on(hostname, &block)
-  Net::SSH.start(hostname, "erik") do |ssh|
-    puts ssh.exec!(yield)
-    # puts yield
+def ssh_to_host(hostname, &block)
+  Net::SSH.start(hostname, Etc.getlogin) do |ssh|
+    puts "Running commands on: #{hostname}"
+    yield ssh
   end
 end
 
 def parse_options
-  options = {:server_analysis_dir => '/Data/vtrak1/analyses/Freesurfer', :autorecon_args => '-autorecon2-wm -autorecon3'}
+  options = {:server_analysis_dir => '/Data/vtrak1/analyses/freesurfer/wrap/orig_recon', :autorecon_args => ['-autorecon2-wm', '-autorecon3']}
   parser = OptionParser.new do |opts|
-    opts.banner = "Usage: #{File.basename(__FILE__)} hostname [options] [autrecon_args]"
+    opts.banner = "Usage: #{File.basename(__FILE__)} hostname [options]"
 
     opts.on('-s', '--subject SUBJECT', "Subject to Recon")     do |subject| 
       options[:subject] = subject
     end
     
-    opts.on('-d', '--dir DIR', "Directory if other than default (#{options[:server_analysis_dir]})")     do |server_analysis_dir| 
+    opts.on('-d', '--dir DIR', "Directory if other than default (#{options[:server_analysis_dir]})") do |server_analysis_dir| 
       options[:server_analysis_dir] = File.expand_path(server_analysis_dir)
     end
     
+    opts.on('--recon-args ARGS', Array, "Arguments list for recon-all") do |args| 
+      options[:autorecon_args] = args
+    end
+    
     opts.on_tail('-h', '--help', "Show this message")  { puts(parser); exit }
-    opts.on_tail("Example: #{File.basename(__FILE__)} nelson -s tami99999 autorecon2-wm autorecon3")
+    opts.on_tail("Example: #{File.basename(__FILE__)} nelson -s tami99999 --recon-args -autorecon2-wm,-autorecon3")
   end
   
   if ARGV.size == 0
@@ -59,8 +68,6 @@ def parse_options
   end
   
   parser.parse!(ARGV)
-  
-  options[:autorecon_args] = ARGV
   
   return options
 end
