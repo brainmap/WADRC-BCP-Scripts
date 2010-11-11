@@ -39,6 +39,6 @@ def parse_options
 end
 
 
-if __FILE__ == $0
+if File.basename(__FILE__) == File.basename($0)
   run!
 end

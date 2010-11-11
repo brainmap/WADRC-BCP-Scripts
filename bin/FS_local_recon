@@ -72,7 +72,7 @@ def parse_options
   return options
 end
 
-if __FILE__ == $0
+if File.basename(__FILE__) == File.basename($0)
   hostname = ARGV.shift
   options = parse_options
   run!(hostname, options[:subject], options)
