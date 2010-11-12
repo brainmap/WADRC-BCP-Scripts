@@ -21,7 +21,7 @@ def run!(hostname, subject, options = {})
 
   ssh_to_host hostname do |ssh|
     commands = []
-    commands << "cp -r #{dataset_path} #{local_dir}; chmod -R ug+w #{local_dir}"
+    commands << "cp -r #{dataset_path} #{local_dir}; chmod -R ug+w #{File.join(local_dir, subject)}"
     commands << [
       "export FREESURFER_HOME=/Applications/freesurfer",
       "source $FREESURFER_HOME/SetUpFreeSurfer.sh",
@@ -54,7 +54,7 @@ def parse_options
       options[:server_analysis_dir] = File.expand_path(server_analysis_dir)
     end
     
-    opts.on('--recon-args ARGS', Array, "Arguments list for recon-all") do |args| 
+    opts.on('-r', '--recon-args ARGS', Array, "Arguments list for recon-all") do |args| 
       options[:autorecon_args] = args
     end
     
@@ -62,8 +62,12 @@ def parse_options
     opts.on_tail("Example: #{File.basename(__FILE__)} nelson -s tami99999 --recon-args -autorecon2-wm,-autorecon3")
   end
   
-  if ARGV.size == 0
-    # puts "Problem with arguments: #{ARGV}"
+  if ARGV.size != 1
+    if ARGV.size == 0
+      puts "Missing hostname - maybe you forgot it?"
+    else 
+      puts "Problem with arguments: #{ARGV}"
+    end
     puts(parser); exit
   end
   
@@ -73,7 +77,7 @@ def parse_options
 end
 
 if File.basename(__FILE__) == File.basename($0)
-  hostname = ARGV.shift
   options = parse_options
+  hostname = ARGV.shift
   run!(hostname, options[:subject], options)
 end
