@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # 05/11/10
 # Full command for running DTI with Eddy Current Correction and Sundry Options
 
