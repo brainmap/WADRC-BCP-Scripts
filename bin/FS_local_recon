@@ -19,7 +19,7 @@ def run!(hostname, subject, options = {})
     commands = []
     commands << "export FREESURFER_HOME=/Applications/freesurfer"
     commands << "source $FREESURFER_HOME/SetUpFreeSurfer.sh"
-    commands << "cp -r #{dataset_path} #{local_dir}"
+    commands << "mv -r #{dataset_path} #{local_dir}"
   	commands << "export SUBJECTS_DIR=#{local_dir}"
     commands << "echo 'SUBJECTS_DIR': $SUBJECTS_DIR"
   	commands << "recon-all -s #{subject} #{options[:autorecon_args].join(" ")}"
