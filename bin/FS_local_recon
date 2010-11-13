@@ -61,17 +61,20 @@ def parse_options
     opts.on_tail('-h', '--help', "Show this message")  { puts(parser); exit }
     opts.on_tail("Example: #{File.basename(__FILE__)} nelson -s tami99999 --recon-args -autorecon2-wm,-autorecon3")
   end
-  
-  if ARGV.size != 1
-    if ARGV.size == 0
-      puts "Missing hostname - maybe you forgot it?"
-    else 
-      puts "Problem with arguments: #{ARGV}"
-    end
+  puts ARGV
+
+  if ARGV.size == 0
+    puts "Missing hostname - maybe you forgot it?"
     puts(parser); exit
   end
-  
+    
   parser.parse!(ARGV)
+
+  if ARGV.size != 1
+    puts "Problem with arguments: #{ARGV}"
+    puts(parser); exit
+  end
+
   
   return options
 end
