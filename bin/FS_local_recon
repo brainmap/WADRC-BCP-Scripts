@@ -18,12 +18,21 @@ def run!(hostname, subject, options = {})
 	local_dir ||= '/Data/FS_local_recon'
 	server_analysis_dir = options[:server_analysis_dir]
 	dataset_path = File.join(server_analysis_dir, subject)
+	fs_home = options[:fs_home] if options[:fs_home]
 
   ssh_to_host hostname do |ssh|
+    unless fs_home
+      fs_home = case ssh.exec!("uname").chomp
+      when "Darwin" then "/Applications/freesurfer"
+      when "Linux" then "/usr/local/freesurfer"
+      else raise ScriptError, "Can't determine freesurfer home.  Try using --fs-home option if you know what it should be."
+      end
+    end
+    
     commands = []
     commands << "mv #{dataset_path} #{local_dir}; chmod -R ug+w #{File.join(local_dir, subject)}"
     commands << [
-      "export FREESURFER_HOME=/Applications/freesurfer",
+      "export FREESURFER_HOME=#{fs_home}",
       "source $FREESURFER_HOME/SetUpFreeSurfer.sh",
   	  "export SUBJECTS_DIR=#{local_dir}",
   	  "recon-all -s #{subject} #{options[:autorecon_args].join(" ")}"].join(";\n")
@@ -42,7 +51,7 @@ def ssh_to_host(hostname, &block)
 end
 
 def parse_options
-  options = {:server_analysis_dir => '/Data/vtrak1/analyses/freesurfer/wrap/orig_recon', :autorecon_args => ['-autorecon2-wm', '-autorecon3']}
+  options = {:server_analysis_dir => '/Data/vtrak1/analyses/freesurfer/wrap/orig_recon', :autorecon_args => ['-autorecon2-cp', '-autorecon3']}
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: #{File.basename(__FILE__)} hostname [options]"
 
@@ -58,18 +67,21 @@ def parse_options
       options[:autorecon_args] = args
     end
     
+    opts.on('-f', '--fs-home DIR', "FREESURFER_HOME directory") do |dir|
+      options[:fs_home] = dir
+    end
+    
     opts.on_tail('-h', '--help', "Show this message")  { puts(parser); exit }
-    opts.on_tail("Example: #{File.basename(__FILE__)} nelson -s tami99999 --recon-args -autorecon2-wm,-autorecon3")
+    opts.on_tail("Example: #{File.basename(__FILE__)} nelson -s tami99999 --recon-args -autorecon2-cp,-autorecon3")
   end
-  puts ARGV
 
+  parser.parse!(ARGV)
+  
   if ARGV.size == 0
-    puts "Missing hostname - maybe you forgot it?"
+    warn "Error: Missing hostname - maybe you forgot it?"
     puts(parser); exit
   end
-    
-  parser.parse!(ARGV)
-
+  
   if ARGV.size != 1
     puts "Problem with arguments: #{ARGV}"
     puts(parser); exit
