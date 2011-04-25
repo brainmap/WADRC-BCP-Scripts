@@ -51,7 +51,7 @@ def ssh_to_host(hostname, &block)
 end
 
 def parse_options
-  options = {:server_analysis_dir => '/Data/vtrak1/analyses/freesurfer/wrap/orig_recon', :autorecon_args => ['-autorecon2-cp', '-autorecon3']}
+  options = {:server_analysis_dir => '/Data/vtrak1/analyses/freesurfer/subjects', :autorecon_args => ['-autorecon2-cp', '-autorecon3']}
   parser = OptionParser.new do |opts|
     opts.banner = "Usage: #{File.basename(__FILE__)} hostname [options]"
 
