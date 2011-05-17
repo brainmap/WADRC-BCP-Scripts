@@ -12,7 +12,7 @@ describe "Perform local recon" do
   it "should run local recon on a subject" do
     hostname = 'localhost'
     subject = "tami99999"
-    options = {:server_analysis_dir => '/Data/vtrak1/raw/test/fixtures/ImageProcessing', :autorecon_options => '-autorecon2-wm -autorecon3'}
+    options = {:server_analysis_dir => $MRI_DATA, :autorecon_args => ['-autorecon2-wm', '-autorecon3']}
     lambda { run!(hostname, subject, options) }.should_not raise_error
   end
   
