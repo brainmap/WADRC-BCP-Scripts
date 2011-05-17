@@ -24,7 +24,7 @@ describe "Exception Testing for DtiTask" do
     @valid_config = {
         :slice_order=>"altplus", 
         :bvectors_file=>"/Data/vtrak1/preprocessed/visits/johnson.alz.snodrest.visit2/DTI_info/preproc_dti/enc12_rows.txt", 
-        :bvalues_file=>"/Data/vtrak1/preprocessed/visits/johnson.alz.snodrest.visit2/DTI_info/preproc_dti/bvalues", 
+        :bvalues_file=>"/Data/vtrak1/preprocessed/visits/johnson.alz.snodrest.visit2/DTI_info/preproc_dti/bvalues.txt", 
         :file_glob=>"'I*'", 
         :force_overwrite=>true, 
         :volumes=>13, 
