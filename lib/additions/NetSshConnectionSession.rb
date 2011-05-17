@@ -1,3 +1,5 @@
+# Reopen Net::SSH to allow for a "realtime" ssh run that prints out stdout
+# immediately upon receipt, so you can interactively watch the results.
 class Net::SSH::Connection::Session
   def exec_realtime(cmd)
     open_channel do |channel|

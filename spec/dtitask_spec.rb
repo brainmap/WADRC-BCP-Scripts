@@ -1,7 +1,8 @@
 $:.unshift File.join(File.dirname(__FILE__),'..','lib')
 
 require 'helper_spec'
-require 'dtitask'
+require 'wadrc-bcp-scripts/basic_task'
+require 'wadrc-bcp-scripts/dtitask'
 
 describe "Exception Testing for DtiTask" do
   before(:all) do
@@ -31,7 +32,7 @@ describe "Exception Testing for DtiTask" do
         :slices_per_volume=>39,
         :rotate=>true
     }
-    @valid_dtitask = Dtitask.new(@valid_config)
+    @valid_dtitask = WadrcBcpScripts::Dtitask.new(@valid_config)
     
     @subid = 'alz021_2'
     @valid_input_directory = File.join($MRI_DATA, @subid, 'anatomicals', 'S9')
@@ -51,7 +52,7 @@ describe "Exception Testing for DtiTask" do
     missing_key = :bvectors_file
     invalid_config = @valid_config
     invalid_config.delete(missing_key)
-    lambda { Dtitask.new(invalid_config).config_requires(missing_key) }.should raise_error(ScriptError, "Missing Keys: #{missing_key}")
+    lambda { WadrcBcpScripts::Dtitask.new(invalid_config).config_requires(missing_key) }.should raise_error(ScriptError, "Missing Keys: #{missing_key}")
   end
   
   it "should create a valid command array when given correct configuration using rotbvecs" do
@@ -77,7 +78,7 @@ describe "Exception Testing for DtiTask" do
       "bet #{dir}/#{@subid}_ecc #{dir}/#{@subid}_ecc_brain -f 0.1 -g 0 -n -m", 
       "dtifit --data=#{dir}/#{@subid}_ecc.nii --out=#{dir}/#{@subid}_dti --mask=#{dir}/#{@subid}_ecc_brain_mask --bvecs=#{@valid_config[:bvectors_file]} --bvals=#{@valid_config[:bvalues_file]}"
     ]
-    cmd = Dtitask.new(config).construct_commands(@valid_input_directory, dir, @subid).collect! {|cmd| cmd.squeeze(" ") }
+    cmd = WadrcBcpScripts::Dtitask.new(config).construct_commands(@valid_input_directory, dir, @subid).collect! {|cmd| cmd.squeeze(" ") }
     cmd.should == valid_command
   end
   

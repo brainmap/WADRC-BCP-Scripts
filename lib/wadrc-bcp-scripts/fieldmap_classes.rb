@@ -17,7 +17,9 @@ module Find
   module_function :match
 end
 
-  
+module WadrcBcpScripts
+
+# This library contains tasks for creating Fieldmaps at a remote server
 class FieldmapTask
   DWELL_TIME = 0.688
   attr_accessor :log
@@ -148,7 +150,7 @@ class LocalFieldmapSetup
   end
   
   def execute_remote_fieldmapping(remote_tarfile)
-    system(ssh -t johnson@tezpur "ssh johnson@${REMOTE_PROCESSING_HOST} ~/bin/createFieldmap.rb #{remote_tarfile}")
+    system("ssh johnson@${REMOTE_PROCESSING_HOST} ~/bin/createFieldmap.rb #{remote_tarfile}")
   end
   
   def transfer_tarfile_from_remote
@@ -159,4 +161,6 @@ class LocalFieldmapSetup
     system("tar -xzvf #{local_tarfile}")
   end
   
+end
+
 end

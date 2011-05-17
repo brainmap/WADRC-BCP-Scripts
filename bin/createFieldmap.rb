@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), 'lib')
 
-require File.dirname(__FILE__) + '/../lib/fieldmap_classes'
+require 'wadrc-bcp-scripts/FieldmapAtWaisman'
 require 'logger'
 
 =begin rdoc

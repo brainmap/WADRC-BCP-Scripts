@@ -5,10 +5,12 @@ $:.unshift File.join(File.dirname(__FILE__),'..','lib')
 require 'yaml'
 require 'optparse'
 begin
-  require 'dtitask'
+  require 'wadrc-bcp-scripts/basic_task'
+  require 'wadrc-bcp-scripts/dtitask'
 rescue LoadError
   require 'rubygems'
-  require 'dtitask'
+  require 'wadrc-bcp-scripts/basic_task'
+  require 'wadrc-bcp-scripts/dtitask'
 end
 
 =begin rdoc
@@ -31,7 +33,7 @@ def run!
   output_directory = ARGV.pop
   input_directories = ARGV
   input_directories.each do |input_directory|
-    task = Dtitask.new(config)
+    task = WadrcBcpScripts::Dtitask.new(config)
     task.reconstruct!(input_directory, output_directory)
   end
 end

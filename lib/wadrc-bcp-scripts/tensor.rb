@@ -1,4 +1,6 @@
-# A class for manipulatin Tensor info for DTI.
+module WadrcBcpScripts
+
+# A class for manipulating Tensor info for DTI.
 class Tensor
   attr_accessor :data
   
@@ -18,4 +20,6 @@ class Tensor
       end
     end
   end
+end
+
 end
