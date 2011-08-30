@@ -3,5 +3,4 @@ doc
 ._*
 *~
 *.gem
-*.gemspec
 Gemfile.lock
